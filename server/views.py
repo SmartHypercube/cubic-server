@@ -57,3 +57,12 @@ def get_tree(base):
 @api.api
 def get_block(l):
     return {h: b64encode(pool[h]).decode('ascii') for h in l}
+
+
+@api.api
+def reset():
+    from os import listdir, remove
+    for f in listdir('var'):
+        if len(f) == 64:
+            remove('var/' + f)
+    User.get().delete()
