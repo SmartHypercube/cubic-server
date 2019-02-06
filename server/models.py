@@ -18,7 +18,7 @@ class Node(models.Model):
     def new_root(cls):
         return cls.objects.create(name=b'/', is_dir=True)
 
-    def list(self, prefix):
+    def _list(self, prefix):
         if not self.is_dir:
             return {
                 'path': b64encode(prefix + self.name).decode('ascii'),
@@ -27,11 +27,15 @@ class Node(models.Model):
                 'size': self.size,
                 'blocks': self.blocks.splitlines(),
             }
+        if self.name == b'/':
+            new_prefix = b'/'
+        else:
+            new_prefix = prefix + self.name + b'/'
         return {
             'path': b64encode(prefix + self.name).decode('ascii'),
             'is_dir': True,
             'meta': b64encode(self.meta).decode('ascii'),
-            'children': [node.list(prefix=prefix+self.name+b'/') for node in self.children.all()],
+            'children': [node.list(prefix=new_prefix) for node in self.children.all()],
         }
 
 
