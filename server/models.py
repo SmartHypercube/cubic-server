@@ -11,6 +11,7 @@ class Node(models.Model):
     parent = models.ForeignKey('self', models.CASCADE, null=True, related_name='children')
     previous = models.ForeignKey('self', models.CASCADE, null=True, related_name='+')
     meta = models.BinaryField(blank=True)
+    size = models.IntegerField(default=0)
     blocks = models.TextField(blank=True)
 
     @classmethod
@@ -23,6 +24,7 @@ class Node(models.Model):
                 'path': b64encode(prefix + self.name).decode('ascii'),
                 'is_dir': False,
                 'meta': b64encode(self.meta).decode('ascii'),
+                'size': self.size,
                 'blocks': self.blocks.splitlines(),
             }
         return {

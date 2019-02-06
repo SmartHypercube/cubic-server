@@ -32,18 +32,26 @@ def update_tree(add, remove):
             path = b64decode(item['path'])
             node = user.find(path)
             if node.name == b'/':
-                raise api.Error('remove_root')
-            node.delete()
+                node.meta = b''
+                node.save()
+            else:
+                node.delete()
         for item in add:
             path = b64decode(item['path'])
             is_dir = item['is_dir']
             dir, _, part = path.rstrip(b'/').rpartition(b'/')
             meta = b64decode(item['meta'])
+            size = 0
+            for hash in item['blocks']:
+                size += pool.get_size(hash)
             blocks = '\n'.join(item['blocks'])
             node = user.find(dir, create=True)
-            if node.children.filter(name=part).exists():
-                raise api.Error('add_conflict')
-            node.children.create(name=part, is_dir=is_dir, meta=meta, blocks=blocks)
+            try:
+                node = node.children.get(name=part)
+                node.meta = meta
+                node.save()
+            except Node.DoesNotExist:
+                node.children.create(name=part, is_dir=is_dir, meta=meta, size=size, blocks=blocks)
 
 
 @api.api

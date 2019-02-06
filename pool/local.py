@@ -46,3 +46,9 @@ class LocalPool(Pool):
         with temp.open('wb') as f:
             f.write(data)
         temp.rename(path)
+
+    def get_size(self, key):
+        path = self / key
+        if not path.exists():
+            raise KeyError(key)
+        return path.stat().st_size
