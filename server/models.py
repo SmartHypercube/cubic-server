@@ -18,7 +18,7 @@ class Node(models.Model):
     def new_root(cls):
         return cls.objects.create(name=b'/', is_dir=True)
 
-    def _list(self, prefix):
+    def list(self, prefix):
         if not self.is_dir:
             return {
                 'path': b64encode(prefix + self.name).decode('ascii'),
